@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1a1c2c">
+<title>日文單字卡</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#f4f4f8; --card:#ffffff; --ink:#1c1e26; --sub:#7a7d8c; --line:#e3e4ec;
+  --accent:#4f63d2; --accent-ink:#fff; --good:#2e9e6b; --mid:#d9932c; --bad:#d25555;
+  --chip:#eceef8; --chip-ink:#4f63d2; --hide:#f0f1f6;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#14161f; --card:#1e2130; --ink:#e8e9f0; --sub:#8b8fa3; --line:#2c3044;
+    --accent:#7b8cff; --accent-ink:#101223; --good:#4dc48f; --mid:#e0a94e; --bad:#e07777;
+    --chip:#262a3d; --chip-ink:#9aa6ff; --hide:#252838;
+  }
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+html,body{margin:0; padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"Noto Sans TC","Noto Sans JP","Microsoft JhengHei",system-ui,sans-serif;
+  min-height:100vh; display:flex; flex-direction:column;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+header{
+  display:flex; align-items:center; gap:10px; padding:12px 16px 8px;
+}
+header h1{font-size:18px; margin:0; flex:1}
+.iconbtn{
+  border:1px solid var(--line); background:var(--card); color:var(--ink);
+  border-radius:10px; padding:8px 14px; font-size:15px; cursor:pointer;
+}
+.tabs{display:flex; gap:8px; padding:0 16px 10px}
+.tab{
+  flex:1; text-align:center; padding:10px 0; border-radius:12px; font-size:15px;
+  background:var(--card); border:1px solid var(--line); color:var(--sub); cursor:pointer;
+}
+.tab.on{background:var(--accent); color:var(--accent-ink); border-color:var(--accent); font-weight:700}
+#stats{padding:0 18px 8px; color:var(--sub); font-size:13px}
+main{flex:1; display:flex; flex-direction:column; padding:0 16px 16px; max-width:720px; width:100%; margin:0 auto}
+#card{
+  flex:1; background:var(--card); border:1px solid var(--line); border-radius:20px;
+  display:flex; flex-direction:column; justify-content:center; gap:14px;
+  padding:26px 22px; cursor:pointer; min-height:340px; box-shadow:0 4px 18px rgba(0,0,0,.06);
+}
+.face{display:flex; flex-direction:column; align-items:center; gap:6px}
+.face .tag{
+  font-size:12px; letter-spacing:2px; color:var(--chip-ink); background:var(--chip);
+  border-radius:999px; padding:3px 12px;
+}
+.face .txt{font-size:40px; line-height:1.35; text-align:center; word-break:break-word}
+.face.small .txt{font-size:24px; color:var(--ink)}
+.face.hidden-face .txt{
+  color:transparent; background:var(--hide); border-radius:10px; min-width:60%;
+  user-select:none;
+}
+.face.hidden-face .tag{opacity:.55}
+#meta{color:var(--sub); font-size:12.5px; text-align:center; min-height:18px; margin-top:4px}
+#hint{color:var(--sub); font-size:13px; text-align:center; padding:10px 0 2px}
+#actions{display:flex; gap:10px; padding-top:12px; min-height:76px}
+#actions button{
+  flex:1; border:none; border-radius:14px; padding:16px 0; font-size:17px; font-weight:700;
+  cursor:pointer; color:#fff;
+}
+#actions .bad{background:var(--bad)} #actions .mid{background:var(--mid)} #actions .good{background:var(--good)}
+#actions .nav{background:var(--card); color:var(--ink); border:1px solid var(--line); font-weight:500}
+#done{
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:12px; color:var(--sub); font-size:16px; text-align:center;
+}
+#done .big{font-size:44px}
+/* settings */
+#settings{
+  position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; z-index:10;
+}
+#settings.open{display:flex}
+.sheet{
+  margin:auto; background:var(--card); color:var(--ink); border-radius:18px;
+  width:min(480px, 92vw); max-height:86vh; overflow:auto; padding:20px 22px;
+}
+.sheet h2{font-size:17px; margin:4px 0 14px}
+.sheet h3{font-size:14px; color:var(--sub); margin:18px 0 8px; font-weight:600}
+.optrow{display:flex; flex-wrap:wrap; gap:8px}
+.opt{
+  border:1px solid var(--line); border-radius:999px; padding:8px 16px; font-size:14px;
+  cursor:pointer; color:var(--sub); background:transparent;
+}
+.opt.on{background:var(--accent); border-color:var(--accent); color:var(--accent-ink); font-weight:700}
+.sheet .row{display:flex; align-items:center; gap:10px; margin:8px 0}
+.sheet input[type=number]{
+  width:80px; padding:8px; border-radius:8px; border:1px solid var(--line);
+  background:var(--bg); color:var(--ink); font-size:15px;
+}
+.sheet .close{margin-top:18px; width:100%; padding:13px 0; border-radius:12px; border:none;
+  background:var(--accent); color:var(--accent-ink); font-size:16px; font-weight:700; cursor:pointer}
+.sheet .danger{background:transparent; border:1px solid var(--bad); color:var(--bad);
+  border-radius:10px; padding:9px 14px; font-size:13.5px; cursor:pointer}
+.sheet .plain{background:transparent; border:1px solid var(--line); color:var(--ink);
+  border-radius:10px; padding:9px 14px; font-size:13.5px; cursor:pointer}
+textarea{width:100%; height:90px; border-radius:10px; border:1px solid var(--line);
+  background:var(--bg); color:var(--ink); font-size:12px; padding:8px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🎴 日文單字卡</h1>
+  <button class="iconbtn" id="btnSettings">⚙ 設定</button>
+</header>
+<div class="tabs">
+  <div class="tab on" id="tabSrs">📅 排程複習</div>
+  <div class="tab" id="tabFree">🔀 自由刷</div>
+</div>
+<div id="stats"></div>
+<main>
+  <div id="card"></div>
+  <div id="meta"></div>
+  <div id="hint"></div>
+  <div id="actions"></div>
+</main>
+
+<div id="settings">
+  <div class="sheet">
+    <h2>設定</h2>
+    <h3>牌組（可複選）</h3>
+    <div class="optrow" id="deckOpts"></div>
+    <h3>先出哪一面</h3>
+    <div class="optrow" id="faceOpts"></div>
+    <h3>每日新卡上限</h3>
+    <div class="row"><input type="number" id="newLimit" min="0" max="200"> 張／天</div>
+    <h3>進度備份</h3>
+    <div class="row">
+      <button class="plain" id="btnExport">匯出進度</button>
+      <button class="plain" id="btnImport">匯入進度</button>
+      <button class="danger" id="btnReset">清除全部進度</button>
+    </div>
+    <textarea id="ioArea" placeholder="匯出的進度 JSON 會出現在這裡；匯入時把 JSON 貼在這裡再按匯入。"></textarea>
+    <button class="close" id="btnClose">完成</button>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+'use strict';
+/* ---------- 基本 ---------- */
+const $ = s => document.querySelector(s);
+const KANJI_RE = /[一-鿿]/;
+const norm = s => (s||'').replace(/\s/g,'');
+const todayStr = () => {
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+};
+const addDays = (n) => {
+  const d = new Date(); d.setDate(d.getDate()+n);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+};
+const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+
+/* ---------- 狀態 ---------- */
+const LADDER = [1,3,7,16,35,80,180,365];   // box → 間隔天數
+const SKEY = 'jpfc_state_v1', CKEY = 'jpfc_cfg_v1';
+let state = JSON.parse(localStorage.getItem(SKEY)||'{}');   // {cardId:{b:box,d:due}}
+let cfg = Object.assign({
+  decks:{base:true, media:true, grammar:false, kanji:false},
+  face:'輪流',            // 漢字|讀音|語意|輪流|隨機
+  newLimit:20,
+  daily:{date:'', used:0},
+}, JSON.parse(localStorage.getItem(CKEY)||'{}'));
+const saveState = () => localStorage.setItem(SKEY, JSON.stringify(state));
+const saveCfg = () => localStorage.setItem(CKEY, JSON.stringify(cfg));
+
+const ALL = {};                 // id -> card
+const DECK_LABEL = {};
+DECKS.forEach(d => { DECK_LABEL[d.key]=d.label; d.cards.forEach(c => { c.deck=d.key; ALL[c.id]=c; }); });
+
+function activeCards(){
+  const out=[];
+  DECKS.forEach(d => { if(cfg.decks[d.key]) out.push(...d.cards); });
+  return out;
+}
+
+/* ---------- 三面 ---------- */
+function facesOf(c){
+  const f=[];
+  f.push({kind:'漢字', label:KANJI_RE.test(c.w)?'漢字':'單字', t:c.w});
+  if(c.r && norm(c.r)!==norm(c.w)) f.push({kind:'讀音', label:'讀音', t:c.r});
+  if(c.m) f.push({kind:'語意', label:'語意', t:c.m});
+  return f;
+}
+const FACE_CYCLE = ['漢字','讀音','語意'];
+let cycleIdx = 0;
+function orderFaces(c){
+  const faces = facesOf(c);
+  let want = cfg.face;
+  if(want==='輪流'){ want = FACE_CYCLE[cycleIdx % 3]; cycleIdx++; }
+  else if(want==='隨機'){ want = FACE_CYCLE[Math.floor(Math.random()*3)]; }
+  const i = faces.findIndex(f => f.kind===want);
+  if(i>0){ const [f] = faces.splice(i,1); faces.unshift(f); }
+  return faces;
+}
+
+/* ---------- 佇列 ---------- */
+let mode='srs';           // srs | free
+let queue=[], cur=null, curFaces=[], revealed=1;
+
+function rollDaily(){
+  const t=todayStr();
+  if(cfg.daily.date!==t){ cfg.daily={date:t, used:0}; saveCfg(); }
+}
+function buildQueue(){
+  rollDaily();
+  const cards = activeCards();
+  if(mode==='free'){ queue = shuffle(cards.slice()); return; }
+  const t = todayStr();
+  const due=[], fresh=[];
+  cards.forEach(c => {
+    const s = state[c.id];
+    if(s){ if(s.d<=t) due.push(c); }
+    else fresh.push(c);
+  });
+  shuffle(due); shuffle(fresh);
+  const room = Math.max(0, cfg.newLimit - cfg.daily.used);
+  queue = due.concat(fresh.slice(0, room));
+}
+
+/* ---------- 畫面 ---------- */
+function renderStats(){
+  rollDaily();
+  const cards = activeCards();
+  const t = todayStr();
+  let due=0, learned=0;
+  cards.forEach(c => { const s=state[c.id]; if(s){ learned++; if(s.d<=t) due++; } });
+  const fresh = cards.length - learned;
+  $('#stats').textContent = mode==='srs'
+    ? `待複習 ${due}　今日新卡 ${cfg.daily.used}/${cfg.newLimit}　未學 ${fresh}　已學 ${learned}／${cards.length}`
+    : `自由刷：${cards.length} 張（不記進度）`;
+}
+function renderCard(){
+  const card = $('#card'), actions = $('#actions'), hint = $('#hint'), meta = $('#meta');
+  if(!cur){
+    const msg = mode==='srs' ? '今天的複習完成了 🎉' : '沒有可刷的卡（先在設定勾選牌組）';
+    card.style.display='flex'; card.style.cursor='default';
+    card.innerHTML = `<div id="done"><div class="big">${mode==='srs'?'🎉':'🃏'}</div><div>${msg}</div></div>`;
+    meta.textContent=''; hint.textContent=''; actions.innerHTML='';
+    renderStats();
+    return;
+  }
+  card.style.display='flex'; card.style.cursor='pointer';
+  card.innerHTML = curFaces.map((f,i) => {
+    const shown = i < revealed;
+    const cls = 'face' + (i===0?'':' small') + (shown?'':' hidden-face');
+    const txt = shown ? escapeHtml(f.t) : '？？？';
+    return `<div class="${cls}"><span class="tag">${f.label}</span><span class="txt">${txt}</span></div>`;
+  }).join('');
+  const full = revealed >= curFaces.length;
+  meta.textContent = full ? `${DECK_LABEL[cur.deck]}${cur.sec?'・'+cur.sec:''}　來源：${cur.s||'—'}` : '';
+  hint.textContent = full ? '' : '👆 點卡片翻下一面';
+  if(!full){ $('#actions').innerHTML=''; }
+  else if(mode==='srs'){
+    $('#actions').innerHTML =
+      `<button class="bad" id="gBad">忘記</button>
+       <button class="mid" id="gMid">有點難</button>
+       <button class="good" id="gGood">記得</button>`;
+    $('#gBad').onclick = () => grade(0);
+    $('#gMid').onclick = () => grade(1);
+    $('#gGood').onclick = () => grade(2);
+  }else{
+    $('#actions').innerHTML = `<button class="nav" id="gNext">下一張 →</button>`;
+    $('#gNext').onclick = nextCard;
+  }
+  renderStats();
+}
+function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function nextCard(){
+  cur = queue.shift() || null;
+  if(cur){ curFaces = orderFaces(cur); revealed = 1; }
+  renderCard();
+}
+function grade(g){
+  const s = state[cur.id] || null;
+  const isNew = !s;
+  let box = s ? s.b : -1;
+  if(g===0){
+    box = Math.max(0, box<0?0:box-2);
+    // 忘記：稍後在本次佇列再出現一次
+    const pos = Math.min(queue.length, 5 + Math.floor(Math.random()*4));
+    queue.splice(pos, 0, cur);
+    state[cur.id] = {b:box, d:todayStr()};
+  }else{
+    box = box<0 ? (g===2?1:0) : Math.min(LADDER.length-1, box + (g===2?2:1));
+    state[cur.id] = {b:box, d:addDays(LADDER[box])};
+  }
+  if(isNew){ cfg.daily.used++; saveCfg(); }
+  saveState();
+  nextCard();
+}
+
+/* ---------- 互動 ---------- */
+$('#card').addEventListener('click', () => {
+  if(!cur) return;
+  if(revealed < curFaces.length){ revealed++; renderCard(); }
+});
+$('#tabSrs').onclick = () => switchMode('srs');
+$('#tabFree').onclick = () => switchMode('free');
+function switchMode(m){
+  mode = m;
+  $('#tabSrs').classList.toggle('on', m==='srs');
+  $('#tabFree').classList.toggle('on', m==='free');
+  buildQueue(); nextCard();
+}
+
+/* ---------- 設定 ---------- */
+function renderSettings(){
+  $('#deckOpts').innerHTML = DECKS.map(d =>
+    `<button class="opt ${cfg.decks[d.key]?'on':''}" data-deck="${d.key}">${d.label}（${d.cards.length}）</button>`).join('');
+  document.querySelectorAll('#deckOpts .opt').forEach(b => b.onclick = () => {
+    cfg.decks[b.dataset.deck] = !cfg.decks[b.dataset.deck]; saveCfg(); renderSettings();
+  });
+  const faces = ['輪流','隨機','漢字','讀音','語意'];
+  $('#faceOpts').innerHTML = faces.map(f =>
+    `<button class="opt ${cfg.face===f?'on':''}" data-face="${f}">${f}</button>`).join('');
+  document.querySelectorAll('#faceOpts .opt').forEach(b => b.onclick = () => {
+    cfg.face = b.dataset.face; saveCfg(); renderSettings();
+  });
+  $('#newLimit').value = cfg.newLimit;
+}
+$('#btnSettings').onclick = () => { renderSettings(); $('#settings').classList.add('open'); };
+$('#btnClose').onclick = () => {
+  cfg.newLimit = Math.max(0, parseInt($('#newLimit').value||'0',10));
+  saveCfg(); $('#settings').classList.remove('open');
+  buildQueue(); nextCard();
+};
+$('#btnExport').onclick = () => {
+  $('#ioArea').value = JSON.stringify({state, cfg});
+  $('#ioArea').select();
+  try{ document.execCommand('copy'); }catch(e){}
+};
+$('#btnImport').onclick = () => {
+  try{
+    const o = JSON.parse($('#ioArea').value);
+    if(o.state){ state = o.state; saveState(); }
+    if(o.cfg){ cfg = Object.assign(cfg, o.cfg); saveCfg(); }
+    alert('已匯入');
+  }catch(e){ alert('JSON 格式不對'); }
+};
+$('#btnReset').onclick = () => {
+  if(confirm('確定清除全部複習進度？（無法復原）')){
+    state={}; saveState(); cfg.daily={date:'',used:0}; saveCfg();
+    buildQueue(); nextCard();
+  }
+};
+
+/* ---------- 啟動 ---------- */
+buildQueue(); nextCard();
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){ navigator.serviceWorker.register('sw.js'); }
+</script>
+</body>
+</html>
