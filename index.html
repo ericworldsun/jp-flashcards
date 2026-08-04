@@ -10,12 +10,20 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
 :root{
+  color-scheme:light;
   --bg:#f4f4f8; --card:#ffffff; --ink:#1c1e26; --sub:#7a7d8c; --line:#e3e4ec;
   --accent:#4f63d2; --accent-ink:#fff; --good:#2e9e6b; --mid:#d9932c; --bad:#d25555;
   --chip:#eceef8; --chip-ink:#4f63d2; --hide:#f0f1f6;
 }
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#14161f; --card:#1e2130; --ink:#e8e9f0; --sub:#8b8fa3; --line:#2c3044;
+  --accent:#7b8cff; --accent-ink:#101223; --good:#4dc48f; --mid:#e0a94e; --bad:#e07777;
+  --chip:#262a3d; --chip-ink:#9aa6ff; --hide:#252838;
+}
 @media (prefers-color-scheme: dark){
-  :root{
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
     --bg:#14161f; --card:#1e2130; --ink:#e8e9f0; --sub:#8b8fa3; --line:#2c3044;
     --accent:#7b8cff; --accent-ink:#101223; --good:#4dc48f; --mid:#e0a94e; --bad:#e07777;
     --chip:#262a3d; --chip-ink:#9aa6ff; --hide:#252838;
@@ -41,36 +49,65 @@ header h1{font-size:18px; margin:0; flex:1}
 .tab{
   flex:1; text-align:center; padding:10px 0; border-radius:12px; font-size:15px;
   background:var(--card); border:1px solid var(--line); color:var(--sub); cursor:pointer;
+  transition:transform .12s ease;
 }
+.tab:active{transform:scale(.97)}
 .tab.on{background:var(--accent); color:var(--accent-ink); border-color:var(--accent); font-weight:700}
 #stats{padding:0 18px 8px; color:var(--sub); font-size:13px}
+#stats .bar{display:flex; height:6px; border-radius:3px; overflow:hidden; margin-top:5px; background:var(--line)}
+#stats .bar i{display:block; height:100%}
 main{flex:1; display:flex; flex-direction:column; padding:0 16px 16px; max-width:720px; width:100%; margin:0 auto}
 #card{
   flex:1; background:var(--card); border:1px solid var(--line); border-radius:20px;
   display:flex; flex-direction:column; justify-content:center; gap:14px;
   padding:26px 22px; cursor:pointer; min-height:340px; box-shadow:0 4px 18px rgba(0,0,0,.06);
+  position:relative; transition:transform .12s ease;
 }
+#card:active{transform:scale(.97)}
+.speak{
+  position:absolute; top:12px; right:12px; z-index:2;
+  border:1px solid var(--line); background:var(--chip); color:var(--chip-ink);
+  border-radius:999px; width:42px; height:42px; font-size:19px; cursor:pointer;
+  transition:transform .12s ease;
+}
+.speak:active{transform:scale(.9)}
 .face{display:flex; flex-direction:column; align-items:center; gap:6px}
+.tagrow{display:flex; align-items:center; gap:8px}
+.facenote{font-size:11px; color:var(--sub)}
 .face .tag{
   font-size:12px; letter-spacing:2px; color:var(--chip-ink); background:var(--chip);
   border-radius:999px; padding:3px 12px;
 }
 .face .txt{font-size:40px; line-height:1.35; text-align:center; word-break:break-word}
+/* 日文內容用系統日文字型,避免中文字型的字形差異(不外連字型檔,平板離線也能用) */
+.txt[lang=ja]{font-family:"Noto Sans JP","Hiragino Sans","Yu Gothic UI","Yu Gothic","Meiryo","Microsoft JhengHei",sans-serif}
+/* 長文自適應字級 */
+.face .txt.len-l{font-size:28px}
+.face .txt.len-xl{font-size:20px}
 .face.small .txt{font-size:24px; color:var(--ink)}
+.face.small .txt.len-l{font-size:20px}
+.face.small .txt.len-xl{font-size:16px}
+.face .txt ruby rt{font-size:.42em; color:var(--sub); letter-spacing:1px}
+/* 遮罩面:半透明+模糊,蓋住內容但保留版面 */
 .face.hidden-face .txt{
-  color:transparent; background:var(--hide); border-radius:10px; min-width:60%;
-  user-select:none;
+  filter:blur(6px); opacity:.3; border-radius:10px;
+  user-select:none; pointer-events:none;
 }
 .face.hidden-face .tag{opacity:.55}
+/* 翻面動畫:新露出的面 */
+@keyframes faceIn{from{transform:translateY(8px); opacity:0}to{transform:none; opacity:1}}
+.face.reveal{animation:faceIn .18s ease}
 #meta{color:var(--sub); font-size:12.5px; text-align:center; min-height:18px; margin-top:4px}
 #hint{color:var(--sub); font-size:13px; text-align:center; padding:10px 0 2px}
 #actions{display:flex; gap:10px; padding-top:12px; min-height:76px}
 #actions button{
   flex:1; border:none; border-radius:14px; padding:16px 0; font-size:17px; font-weight:700;
-  cursor:pointer; color:#fff;
+  cursor:pointer; color:#fff; transition:transform .12s ease;
 }
+#actions button:active{transform:scale(.97)}
 #actions .bad{background:var(--bad)} #actions .mid{background:var(--mid)} #actions .good{background:var(--good)}
 #actions .nav{background:var(--card); color:var(--ink); border:1px solid var(--line); font-weight:500}
+#actions .undo{flex:0 0 auto; padding:16px 14px; font-size:15px}
 #done{
   flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:12px; color:var(--sub); font-size:16px; text-align:center;
@@ -83,15 +120,19 @@ main{flex:1; display:flex; flex-direction:column; padding:0 16px 16px; max-width
 #settings.open{display:flex}
 .sheet{
   margin:auto; background:var(--card); color:var(--ink); border-radius:18px;
-  width:min(480px, 92vw); max-height:86vh; overflow:auto; padding:20px 22px;
+  width:min(480px, 92vw); max-height:86vh; overflow:auto;
+  padding:20px 22px; padding-bottom:calc(20px + env(safe-area-inset-bottom));
 }
+@keyframes sheetIn{from{transform:translateY(24px); opacity:0}to{transform:none; opacity:1}}
+#settings.open .sheet{animation:sheetIn .22s ease}
 .sheet h2{font-size:17px; margin:4px 0 14px}
 .sheet h3{font-size:14px; color:var(--sub); margin:18px 0 8px; font-weight:600}
 .optrow{display:flex; flex-wrap:wrap; gap:8px}
 .opt{
   border:1px solid var(--line); border-radius:999px; padding:8px 16px; font-size:14px;
-  cursor:pointer; color:var(--sub); background:transparent;
+  cursor:pointer; color:var(--sub); background:transparent; transition:transform .12s ease;
 }
+.opt:active{transform:scale(.97)}
 .opt.on{background:var(--accent); border-color:var(--accent); color:var(--accent-ink); font-weight:700}
 .sheet .row{display:flex; align-items:center; gap:10px; margin:8px 0}
 .sheet input[type=number]{
@@ -106,11 +147,20 @@ main{flex:1; display:flex; flex-direction:column; padding:0 16px 16px; max-width
   border-radius:10px; padding:9px 14px; font-size:13.5px; cursor:pointer}
 textarea{width:100%; height:90px; border-radius:10px; border:1px solid var(--line);
   background:var(--bg); color:var(--ink); font-size:12px; padding:8px}
+#toast{
+  position:fixed; left:50%; bottom:calc(30px + env(safe-area-inset-bottom));
+  transform:translateX(-50%) translateY(10px);
+  background:var(--ink); color:var(--bg); padding:10px 18px; border-radius:999px;
+  font-size:14px; opacity:0; pointer-events:none; transition:opacity .25s,transform .25s; z-index:50;
+  max-width:88vw;
+}
+#toast.show{opacity:1; transform:translateX(-50%)}
 </style>
 </head>
 <body>
 <header>
   <h1>🎴 日文單字卡</h1>
+  <button class="iconbtn" id="btnTheme" title="切換深淺色">🌗</button>
   <button class="iconbtn" id="btnSettings">⚙ 設定</button>
 </header>
 <div class="tabs">
@@ -144,6 +194,7 @@ textarea{width:100%; height:90px; border-radius:10px; border:1px solid var(--lin
     <button class="close" id="btnClose">完成</button>
   </div>
 </div>
+<div id="toast"></div>
 
 <script src="data.js"></script>
 <script>
@@ -166,12 +217,29 @@ const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.ran
 const LADDER = [1,3,7,16,35,80,180,365];   // box → 間隔天數
 const SKEY = 'jpfc_state_v1', CKEY = 'jpfc_cfg_v1';
 let state = JSON.parse(localStorage.getItem(SKEY)||'{}');   // {cardId:{b:box,d:due}}
-let cfg = Object.assign({
+const CFG_DEFAULTS = {
   decks:{base:true, media:true, grammar:false, kanji:false},
   face:'輪流',            // 漢字|讀音|語意|輪流|隨機
   newLimit:20,
   daily:{date:'', used:0},
-}, JSON.parse(localStorage.getItem(CKEY)||'{}'));
+};
+const savedCfg = JSON.parse(localStorage.getItem(CKEY)||'{}');
+let cfg = Object.assign({}, CFG_DEFAULTS, savedCfg);
+// 深合併:舊版存的 decks/daily 若缺欄位(例如之後新增牌組),用預設值補齊而不是整包覆蓋
+cfg.decks = Object.assign({}, CFG_DEFAULTS.decks, savedCfg.decks||{});
+cfg.daily = Object.assign({}, CFG_DEFAULTS.daily, savedCfg.daily||{});
+
+/* ---------- 主題(手動深淺色,比照外站票雷達) ---------- */
+const TKEY = 'jpfc_theme';   // 新增的 key,不動既有契約
+const savedTheme = localStorage.getItem(TKEY);
+if(savedTheme) document.documentElement.dataset.theme = savedTheme;
+$('#btnTheme').onclick = () => {
+  const cur = document.documentElement.dataset.theme ||
+    (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  localStorage.setItem(TKEY, next);
+};
 const saveState = () => localStorage.setItem(SKEY, JSON.stringify(state));
 const saveCfg = () => localStorage.setItem(CKEY, JSON.stringify(cfg));
 
@@ -215,6 +283,7 @@ function rollDaily(){
 }
 function buildQueue(){
   rollDaily();
+  undoInfo = null;   // 佇列重建後,舊快照已失效
   const cards = activeCards();
   if(mode==='free'){ queue = shuffle(cards.slice()); return; }
   const t = todayStr();
@@ -237,43 +306,85 @@ function renderStats(){
   let due=0, learned=0;
   cards.forEach(c => { const s=state[c.id]; if(s){ learned++; if(s.d<=t) due++; } });
   const fresh = cards.length - learned;
-  $('#stats').textContent = mode==='srs'
+  const text = mode==='srs'
     ? `待複習 ${due}　今日新卡 ${cfg.daily.used}/${cfg.newLimit}　未學 ${fresh}　已學 ${learned}／${cards.length}`
     : `自由刷：${cards.length} 張（不記進度）`;
+  const ok = Math.max(learned - due, 0);   // 已學且今天不用複習
+  const bar = (mode==='srs' && cards.length)
+    ? `<div class="bar" title="待複習/未學/已學"><i style="background:var(--mid);flex:${due}"></i><i style="background:var(--accent);flex:${fresh}"></i><i style="background:var(--good);flex:${ok}"></i></div>`
+    : '';
+  $('#stats').innerHTML = `<div>${text}</div>${bar}`;
 }
-function renderCard(){
+const CAN_SPEAK = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+function speakCur(){
+  if(!cur || !CAN_SPEAK) return;
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(cur.r || cur.w);
+    u.lang = 'ja-JP';
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+function faceHtml(f,i){
+  const shown = i < revealed;
+  const cls = 'face' + (i===0?'':' small') + (shown?' reveal':' hidden-face');
+  const lenCls = f.t.length>40 ? ' len-xl' : (f.t.length>20 ? ' len-l' : '');
+  const ja = f.kind!=='語意' ? ' lang="ja"' : '';
+  const note = (i===0 && curFaces.length<3) ? `<span class="facenote">僅 ${curFaces.length} 面</span>` : '';
+  return `<div class="${cls}" data-i="${i}"><span class="tagrow"><span class="tag">${f.label}</span>${note}</span><span class="txt${lenCls}"${ja}>${escapeHtml(f.t)}</span></div>`;
+}
+function renderCard(){   // 換卡時整卡重建;翻面只切 class(見 card click)
   const card = $('#card'), actions = $('#actions'), hint = $('#hint'), meta = $('#meta');
   if(!cur){
-    const msg = mode==='srs' ? '今天的複習完成了 🎉' : '沒有可刷的卡（先在設定勾選牌組）';
+    const noDeck = activeCards().length===0;
+    const msg = noDeck ? '請先在設定勾選牌組'
+      : (mode==='srs' ? '今天的複習完成了 🎉' : '沒有可刷的卡（先在設定勾選牌組）');
     card.style.display='flex'; card.style.cursor='default';
-    card.innerHTML = `<div id="done"><div class="big">${mode==='srs'?'🎉':'🃏'}</div><div>${msg}</div></div>`;
+    card.innerHTML = `<div id="done"><div class="big">${noDeck?'🗂️':(mode==='srs'?'🎉':'🃏')}</div><div>${msg}</div></div>`;
     meta.textContent=''; hint.textContent=''; actions.innerHTML='';
     renderStats();
     return;
   }
   card.style.display='flex'; card.style.cursor='pointer';
-  card.innerHTML = curFaces.map((f,i) => {
-    const shown = i < revealed;
-    const cls = 'face' + (i===0?'':' small') + (shown?'':' hidden-face');
-    const txt = shown ? escapeHtml(f.t) : '？？？';
-    return `<div class="${cls}"><span class="tag">${f.label}</span><span class="txt">${txt}</span></div>`;
-  }).join('');
+  card.innerHTML =
+    (CAN_SPEAK ? `<button class="speak" id="btnSpeak" title="朗讀">🔊</button>` : '')
+    + curFaces.map(faceHtml).join('');
+  const sb = $('#btnSpeak');
+  if(sb) sb.onclick = e => { e.stopPropagation(); speakCur(); };
+  applyRuby();
+  updateChrome();
+}
+function applyRuby(){
+  // 漢字面+讀音面都已翻開 → 漢字上方顯示假名注音
+  if(!cur || !cur.r || norm(cur.r)===norm(cur.w)) return;
+  const ki = curFaces.findIndex(f=>f.kind==='漢字');
+  const yi = curFaces.findIndex(f=>f.kind==='讀音');
+  if(ki<0 || yi<0 || ki>=revealed || yi>=revealed) return;
+  const el = $('#card').querySelector(`.face[data-i="${ki}"] .txt`);
+  if(el && !el.querySelector('ruby'))
+    el.innerHTML = `<ruby>${escapeHtml(cur.w)}<rt>${escapeHtml(cur.r)}</rt></ruby>`;
+}
+function updateChrome(){
   const full = revealed >= curFaces.length;
-  meta.textContent = full ? `${DECK_LABEL[cur.deck]}${cur.sec?'・'+cur.sec:''}　來源：${cur.s||'—'}` : '';
-  hint.textContent = full ? '' : '👆 點卡片翻下一面';
-  if(!full){ $('#actions').innerHTML=''; }
-  else if(mode==='srs'){
-    $('#actions').innerHTML =
-      `<button class="bad" id="gBad">忘記</button>
+  $('#meta').textContent = full ? `${DECK_LABEL[cur.deck]}${cur.sec?'・'+cur.sec:''}　來源：${cur.s||'—'}` : '';
+  $('#hint').textContent = full ? '' : '👆 點卡片翻下一面';
+  let h = '';
+  if(mode==='srs'){
+    if(full) h += `<button class="bad" id="gBad">忘記</button>
        <button class="mid" id="gMid">有點難</button>
        <button class="good" id="gGood">記得</button>`;
+    if(undoInfo) h += `<button class="nav undo" id="gUndo">↩ 復原</button>`;
+  }else if(full){
+    h = `<button class="nav" id="gNext">下一張 →</button>`;
+  }
+  $('#actions').innerHTML = h;
+  if($('#gBad')){
     $('#gBad').onclick = () => grade(0);
     $('#gMid').onclick = () => grade(1);
     $('#gGood').onclick = () => grade(2);
-  }else{
-    $('#actions').innerHTML = `<button class="nav" id="gNext">下一張 →</button>`;
-    $('#gNext').onclick = nextCard;
   }
+  if($('#gUndo')) $('#gUndo').onclick = undo;
+  if($('#gNext')) $('#gNext').onclick = nextCard;
   renderStats();
 }
 function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -283,7 +394,26 @@ function nextCard(){
   if(cur){ curFaces = orderFaces(cur); revealed = 1; }
   renderCard();
 }
+/* ---------- 復原(只支援一步) ---------- */
+let undoInfo = null;
+function undo(){
+  if(!undoInfo) return;
+  const u = undoInfo; undoInfo = null;
+  if(u.prevState) state[u.card.id] = u.prevState; else delete state[u.card.id];
+  cfg.daily.used = u.prevUsed;
+  queue = u.prevQueue;
+  cur = u.card; curFaces = u.faces; revealed = curFaces.length;
+  saveState(); saveCfg();
+  renderCard();
+  toast('已復原上一張的評分');
+}
 function grade(g){
+  undoInfo = {
+    card: cur, faces: curFaces,
+    prevState: state[cur.id] ? Object.assign({}, state[cur.id]) : null,
+    prevUsed: cfg.daily.used,
+    prevQueue: queue.slice(),
+  };
   const s = state[cur.id] || null;
   const isNew = !s;
   let box = s ? s.b : -1;
@@ -305,7 +435,12 @@ function grade(g){
 /* ---------- 互動 ---------- */
 $('#card').addEventListener('click', () => {
   if(!cur) return;
-  if(revealed < curFaces.length){ revealed++; renderCard(); }
+  if(revealed < curFaces.length){
+    revealed++;
+    const el = $('#card').querySelector(`.face[data-i="${revealed-1}"]`);
+    if(el){ el.classList.remove('hidden-face'); el.classList.add('reveal'); applyRuby(); updateChrome(); }
+    else renderCard();   // 保底:找不到面就整卡重繪
+  }
 });
 $('#tabSrs').onclick = () => switchMode('srs');
 $('#tabFree').onclick = () => switchMode('free');
@@ -331,31 +466,76 @@ function renderSettings(){
   });
   $('#newLimit').value = cfg.newLimit;
 }
-$('#btnSettings').onclick = () => { renderSettings(); $('#settings').classList.add('open'); };
-$('#btnClose').onclick = () => {
+let toastTimer = null;
+function toast(msg){
+  const el = $('#toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+}
+function closeSettings(){
   cfg.newLimit = Math.max(0, parseInt($('#newLimit').value||'0',10));
   saveCfg(); $('#settings').classList.remove('open');
+  resetDisarm();
   buildQueue(); nextCard();
-};
-$('#btnExport').onclick = () => {
-  $('#ioArea').value = JSON.stringify({state, cfg});
-  $('#ioArea').select();
-  try{ document.execCommand('copy'); }catch(e){}
+}
+$('#btnSettings').onclick = () => { renderSettings(); $('#settings').classList.add('open'); };
+$('#btnClose').onclick = closeSettings;
+$('#settings').addEventListener('click', e => { if(e.target === $('#settings')) closeSettings(); });
+$('#btnExport').onclick = async () => {
+  const txt = JSON.stringify({state, cfg});
+  $('#ioArea').value = txt;
+  try{
+    await navigator.clipboard.writeText(txt);
+    toast('已匯出並複製到剪貼簿');
+  }catch(e){
+    // 舊瀏覽器 / 非安全來源退回 execCommand
+    try{ $('#ioArea').select(); document.execCommand('copy'); toast('已匯出並複製到剪貼簿'); }
+    catch(e2){ toast('已匯出到下方文字框,請手動複製'); }
+  }
 };
 $('#btnImport').onclick = () => {
   try{
     const o = JSON.parse($('#ioArea').value);
     if(o.state){ state = o.state; saveState(); }
     if(o.cfg){ cfg = Object.assign(cfg, o.cfg); saveCfg(); }
-    alert('已匯入');
-  }catch(e){ alert('JSON 格式不對'); }
+    toast('已匯入進度');
+  }catch(e){ toast('匯入失敗:JSON 格式不對'); }
 };
+/* 清除進度:頁內二次確認(取代 confirm) */
+let resetTimer = null;
+function resetDisarm(){
+  clearTimeout(resetTimer); resetTimer = null;
+  $('#btnReset').textContent = '清除全部進度';
+}
 $('#btnReset').onclick = () => {
-  if(confirm('確定清除全部複習進度？（無法復原）')){
-    state={}; saveState(); cfg.daily={date:'',used:0}; saveCfg();
-    buildQueue(); nextCard();
+  if(!resetTimer){
+    $('#btnReset').textContent = '⚠ 再按一次確認清除（無法復原）';
+    resetTimer = setTimeout(resetDisarm, 4000);
+    return;
   }
+  resetDisarm();
+  state={}; saveState(); cfg.daily={date:'',used:0}; saveCfg();
+  buildQueue(); nextCard();
+  toast('已清除全部進度');
 };
+
+/* ---------- 鍵盤快捷(桌機) ---------- */
+document.addEventListener('keydown', e => {
+  if($('#settings').classList.contains('open')) return;
+  const tag = (e.target.tagName||'').toLowerCase();
+  if(tag==='input' || tag==='textarea') return;
+  if(e.key===' ' || e.key==='ArrowRight'){
+    e.preventDefault();
+    if(!cur) return;
+    if(revealed < curFaces.length) $('#card').click();
+    else if(mode==='free') nextCard();
+  }else if(mode==='srs' && cur && revealed>=curFaces.length && ['1','2','3'].includes(e.key)){
+    grade(Number(e.key)-1);
+  }else if(e.key==='u' || e.key==='U'){
+    undo();
+  }
+});
 
 /* ---------- 啟動 ---------- */
 buildQueue(); nextCard();

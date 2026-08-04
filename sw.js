@@ -15,6 +15,7 @@ self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
   e.respondWith(
     fetch(e.request).then(res => {
+      if (!res.ok) return res;   // 404/500 等錯誤回應不寫入快取,避免蓋掉好的版本
       const copy = res.clone();
       caches.open(VERSION).then(c => c.put(e.request, copy));
       return res;
