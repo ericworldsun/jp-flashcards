@@ -1,5 +1,5 @@
 // 網路優先、離線退回快取（沿用外站票雷達的教訓：殼快取優先會卡舊版）
-const VERSION = 'jpfc-v1';
+const VERSION = 'jpfc-v2';
 const CORE = ['./', './index.html', './data.js', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
