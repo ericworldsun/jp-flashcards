@@ -1,6 +1,7 @@
 // 網路優先、離線退回快取（沿用外站票雷達的教訓：殼快取優先會卡舊版）
-const VERSION = 'jpfc-v2';
-const CORE = ['./', './index.html', './data.js', './manifest.webmanifest', './icon-192.png', './icon-512.png'];
+const VERSION = 'jpfc-v3';
+const CORE = ['./', './index.html', './data.js', './manifest.webmanifest', './icon-192.png', './icon-512.png',
+  './reader.html', './bookmarklet.html', './manifest-reader.webmanifest'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));

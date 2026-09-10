@@ -198,6 +198,11 @@ textarea{width:100%; height:90px; border-radius:10px; border:1px solid var(--lin
       <label>GitHub Token（fine-grained，只給 jp-flashcards repo 的 Contents 讀寫）</label>
       <input type="password" id="ghToken" placeholder="貼上 token，留空=停用上傳" autocomplete="off">
     </div>
+    <h3>讀小說</h3>
+    <div class="row">
+      <a class="plain" style="text-decoration:none; border:1px solid var(--line); border-radius:10px; padding:9px 14px; font-size:13.5px; color:var(--ink)" href="reader.html">📖 小說閱讀器</a>
+      <a class="plain" style="text-decoration:none; border:1px solid var(--line); border-radius:10px; padding:9px 14px; font-size:13.5px; color:var(--ink)" href="bookmarklet.html">📌 網站懸浮查譯</a>
+    </div>
     <h3>進度備份</h3>
     <div class="row">
       <button class="plain" id="btnExport">匯出進度</button>
@@ -252,7 +257,7 @@ const LADDER = [1,3,7,16,35,80,180,365];   // box → 間隔天數
 const SKEY = 'jpfc_state_v1', CKEY = 'jpfc_cfg_v1';
 let state = JSON.parse(localStorage.getItem(SKEY)||'{}');   // {cardId:{b:box,d:due}}
 const CFG_DEFAULTS = {
-  decks:{base:true, media:true, grammar:false, kanji:false},
+  decks:{base:true, media:true, grammar:false, kanji:false, novel:true},
   face:'輪流',            // 漢字|讀音|語意|輪流|隨機
   newLimit:20,
   daily:{date:'', used:0},
@@ -644,7 +649,7 @@ const ghHeaders = t => ({'Authorization':'Bearer '+t, 'Accept':'application/vnd.
 const utf8b64 = s => { const b=new TextEncoder().encode(s); let bin=''; b.forEach(x=>bin+=String.fromCharCode(x)); return btoa(bin); };
 const b64utf8 = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\s/g,'')), ch=>ch.charCodeAt(0)));
 
-const ADD_DECKS = [['base','基礎單字'],['media','影劇動畫']];   // 這兩本筆記依五十音分段,可自動整併
+const ADD_DECKS = [['base','基礎單字'],['media','影劇動畫'],['novel','小說生字']];   // 這三本筆記依五十音分段,可自動整併
 let addDeck = localStorage.getItem('jpfc_add_deck') || 'media';
 
 function updateAddStatus(){

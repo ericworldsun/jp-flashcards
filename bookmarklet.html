@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>懸浮查譯書籤｜日文小說</title>
+<link rel="icon" href="icon-192.png">
+<style>
+:root{color-scheme:light dark}
+body{font-family:"Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif; max-width:720px; margin:0 auto; padding:20px 18px 60px; line-height:1.9;
+  background:#f6f3ec; color:#26241f}
+@media (prefers-color-scheme: dark){ body{background:#15161c; color:#dcdad2} textarea{background:#1f2129; color:#dcdad2} .card{background:#1f2129 !important; border-color:#2c2f3a !important} }
+h1{font-size:22px} h2{font-size:17px; margin-top:28px}
+.card{background:#fff; border:1px solid #e6e1d6; border-radius:14px; padding:14px 16px; margin:12px 0}
+textarea{width:100%; height:110px; font-size:11px; border-radius:10px; border:1px solid #ccc; padding:8px; box-sizing:border-box}
+button{border:none; border-radius:12px; padding:12px 20px; font-size:15px; font-weight:700; background:#4f63d2; color:#fff; cursor:pointer; margin:6px 6px 6px 0}
+button.plain{background:transparent; color:#4f63d2; border:1px solid #4f63d2}
+ol li{margin:8px 0}
+.ja{font-family:"Noto Serif JP",serif; font-size:17px; line-height:2.1}
+small{color:#8a857a}
+a{color:#4f63d2}
+</style>
+</head>
+<body>
+<h1>📌 懸浮查譯書籤（小說網站用）</h1>
+<p>在「小説家になろう」「カクヨム」「青空文庫」等網站讀小說時，叫出一顆懸浮球「訳」：<br>
+<b>長按選取</b>日文 → 點懸浮球 → 立刻看到中譯；再點一下就能<b>查詳細＋存進單字卡</b>（走「小說生字」牌組，之後自動同步回 Obsidian）。</p>
+
+<div class="card">
+<b>書籤程式碼</b>（下面一鍵複製）
+<textarea id="code" readonly>javascript:(function(){var ID='jpfcball';var old=document.getElementById(ID);if(old){old.remove();var q=document.getElementById(ID+'p');if(q)q.remove();return;}var R='https://ericworldsun.github.io/jp-flashcards/reader.html';var b=document.createElement('div');b.id=ID;b.style.cssText='position:fixed;right:14px;bottom:110px;z-index:2147483647;width:52px;height:52px;border-radius:50%;background:#4f63d2;color:#fff;font:700 20px/52px sans-serif;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.35);cursor:pointer;user-select:none;touch-action:none';b.textContent='訳';document.body.appendChild(b);var moved=false;b.addEventListener('touchstart',function(){moved=false;},{passive:true});b.addEventListener('touchmove',function(e){var t=e.touches[0];moved=true;b.style.right='auto';b.style.bottom='auto';b.style.left=(t.clientX-26)+'px';b.style.top=(t.clientY-26)+'px';e.preventDefault();},{passive:false});function panel(html){var p=document.getElementById(ID+'p');if(!p){p=document.createElement('div');p.id=ID+'p';p.style.cssText='position:fixed;left:10px;right:10px;bottom:10px;z-index:2147483647;background:#1f2129;color:#eee;border-radius:14px;padding:14px 34px 14px 16px;font:15px/1.7 sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.4);max-height:45vh;overflow:auto';document.body.appendChild(p);}p.innerHTML=html;var x=document.createElement('div');x.textContent='✕';x.style.cssText='position:absolute;top:6px;right:12px;padding:6px;cursor:pointer;color:#aaa';x.onclick=function(){p.remove();};p.appendChild(x);return p;}function act(){if(moved)return;var s=(window.getSelection?String(window.getSelection()):'').trim();if(!s){panel('先<b>長按選取</b>日文單字或句子，再點「訳」。<br>選單字→可存進單字卡；選整句→整句翻譯。');return;}if(s.length>300)s=s.slice(0,300);var p=panel('<div style="color:#9aa6ff;font-size:13px">'+s.replace(/</g,'&lt;')+'</div><div id="'+ID+'t">翻譯中…</div>');var btn=document.createElement('div');btn.textContent='💾 查詳細／存進單字卡';btn.style.cssText='margin-top:10px;background:#4f63d2;color:#fff;border-radius:10px;padding:10px;text-align:center;cursor:pointer;font-weight:700';btn.onclick=function(){window.open(R+'?q='+encodeURIComponent(s),'jpfcsave');};p.appendChild(btn);fetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=ja&tl=zh-TW&dt=t&q='+encodeURIComponent(s)).then(function(r){return r.json();}).then(function(j){var el=document.getElementById(ID+'t');if(el)el.textContent=j[0].map(function(x){return x[0];}).join('');}).catch(function(){var el=document.getElementById(ID+'t');if(el)el.textContent='此站擋外連翻譯，點下面按鈕改用閱讀器查。';});}b.addEventListener('click',act);})();</textarea>
+<button id="btnCopy">📋 複製書籤程式碼</button>
+<button class="plain" id="btnTry">▶ 在本頁試用</button>
+</div>
+
+<h2>Android Chrome 安裝步驟（一次就好）</h2>
+<ol>
+<li>按上面「複製書籤程式碼」</li>
+<li>隨便開一個網頁 → 網址列右邊「⋮」→「☆ 加入書籤」</li>
+<li>⋮ →「書籤」→ 找到剛存的書籤 → 長按 →「編輯」</li>
+<li><b>名稱改成「訳」</b>，<b>網址整串刪掉、貼上剛複製的程式碼</b> → 儲存</li>
+</ol>
+<h2>之後每次使用</h2>
+<ol>
+<li>在小說網頁，<b>點網址列打「訳」</b>，點選出現的書籤（不是搜尋建議）→ 懸浮球出現</li>
+<li>長按選日文 → 點懸浮球「訳」→ 即時中譯</li>
+<li>想存單字 → 點「💾 查詳細／存進單字卡」→ 跳到閱讀器點字儲存（會自動斷詞給讀音）</li>
+<li>再啟動一次書籤＝收掉懸浮球</li>
+</ol>
+<p><small>懸浮球可以拖曳移位。翻譯走 Google 非官方端點，少數網站會擋，擋掉時就用「查詳細」按鈕跳閱讀器查。</small></p>
+
+<h2>試用區（先在這裡練習長按選字）</h2>
+<div class="card ja">吾輩は猫である。名前はまだ無い。どこで生れたかとんと見当がつかぬ。何でも薄暗いじめじめした所でニャーニャー泣いていた事だけは記憶している。</div>
+
+<p><a href="reader.html">📖 回小說閱讀器</a>｜<a href="./">🎴 回日文單字卡</a></p>
+
+<script>
+document.getElementById('btnCopy').onclick=async()=>{
+  const t=document.getElementById('code').value;
+  try{ await navigator.clipboard.writeText(t); alert('已複製！接著照下面步驟建立書籤。'); }
+  catch(e){ document.getElementById('code').select(); document.execCommand('copy'); alert('已複製！'); }
+};
+document.getElementById('btnTry').onclick=()=>{
+  const code=document.getElementById('code').value.replace(/^javascript:/,'');
+  (new Function(code))();
+};
+</script>
+</body>
+</html>

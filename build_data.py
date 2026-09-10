@@ -16,6 +16,7 @@ NOTES = [
     ('02 影劇動畫生字.md', 'media',   '影劇動畫'),
     ('03 文法句型總表.md', 'grammar', '文法句型'),
     ('04 漢字音讀表.md',   'kanji',   '漢字音讀'),
+    ('05 小說生字.md',     'novel',   '小說生字'),
 ]
 
 def parse_note(path, deck):
@@ -33,7 +34,7 @@ def parse_note(path, deck):
             cells = [c.strip() for c in line.strip('|').split('|')]
             if not cells or cells[0] in ('單字', '句型', '漢字') or set(cells[0]) <= {'-'}:
                 continue
-            if deck in ('base', 'media'):
+            if deck in ('base', 'media', 'novel'):
                 if len(cells) < 4:
                     continue
                 w, r, mn, src = cells[0], cells[1], cells[2], cells[3]
