@@ -4,6 +4,11 @@
   "start_url": "./reader.html",
   "scope": "./",
   "display": "standalone",
+  "share_target": {
+    "action": "./reader.html",
+    "method": "GET",
+    "params": { "text": "q", "title": "st" }
+  },
   "background_color": "#f6f3ec",
   "theme_color": "#1a1c2c",
   "icons": [
