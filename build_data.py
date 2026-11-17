@@ -17,6 +17,8 @@ NOTES = [
     ('03 文法句型總表.md', 'grammar', '文法句型'),
     ('04 漢字音讀表.md',   'kanji',   '漢字音讀'),
     ('05 小說生字.md',     'novel',   '小說生字'),
+    ('06 課程漢字.md',     'ckanji',  '課程漢字'),     # 自動產生：course2notes-work\kanji-wordlist\build.py --vault
+    ('07 課程漢語詞.md',   'cword',   '課程漢語詞'),   # 同上
 ]
 
 def parse_note(path, deck):
@@ -32,12 +34,15 @@ def parse_note(path, deck):
             if not (line.startswith('|') and line.endswith('|')):
                 continue
             cells = [c.strip() for c in line.strip('|').split('|')]
-            if not cells or cells[0] in ('單字', '句型', '漢字') or set(cells[0]) <= {'-'}:
+            is_header = cells and cells[0] in ('單字', '句型', '漢字') and not (deck == 'cword' and cells[0] == '漢字')   # cword 裡「漢字」是一個詞
+            if not cells or is_header or set(cells[0]) <= {'-'}:
                 continue
-            if deck in ('base', 'media', 'novel'):
+            if deck in ('base', 'media', 'novel', 'cword', 'ckanji'):
                 if len(cells) < 4:
                     continue
                 w, r, mn, src = cells[0], cells[1], cells[2], cells[3]
+                if deck == 'ckanji':   # 第 4 欄是部首，併進語意面
+                    mn, src = (mn + '　部首：' + src) if src else mn, '課程漢字'
             elif deck == 'grammar':
                 if len(cells) < 4:
                     continue
@@ -74,7 +79,11 @@ def main():
     total = 0
     warnings = []
     for fname, key, label in NOTES:
-        cards = parse_note(os.path.join(VAULT, fname), key)
+        path = os.path.join(VAULT, fname)
+        if not os.path.exists(path) and key in ('ckanji', 'cword'):
+            print('略過（尚未產生）：%s' % fname)
+            continue
+        cards = parse_note(path, key)
         # 去掉同 deck 內重複 id（保險）
         seen = set()
         uniq = []
