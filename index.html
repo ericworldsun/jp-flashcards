@@ -257,7 +257,7 @@ const LADDER = [1,3,7,16,35,80,180,365];   // box → 間隔天數
 const SKEY = 'jpfc_state_v1', CKEY = 'jpfc_cfg_v1';
 let state = JSON.parse(localStorage.getItem(SKEY)||'{}');   // {cardId:{b:box,d:due}}
 const CFG_DEFAULTS = {
-  decks:{base:true, media:true, grammar:false, kanji:false, novel:true, ckanji:false, cword:false},
+  decks:{base:true, media:true, grammar:false, kanji:false, novel:true, ckanji:false, cword:false, ckun:false},
   face:'輪流',            // 漢字|讀音|語意|輪流|隨機
   newLimit:20,
   daily:{date:'', used:0},

@@ -18,7 +18,8 @@ NOTES = [
     ('04 漢字音讀表.md',   'kanji',   '漢字音讀'),
     ('05 小說生字.md',     'novel',   '小說生字'),
     ('06 課程漢字.md',     'ckanji',  '課程漢字'),     # 自動產生：course2notes-work\kanji-wordlist\build.py --vault
-    ('07 課程漢語詞.md',   'cword',   '課程漢語詞'),   # 同上
+    ('07 課程漢語詞.md',   'cword',   '課程漢語詞'),   # 同上；只收音讀詞
+    ('08 課程訓讀詞.md',   'ckun',    '課程訓讀詞'),   # 同上；訓讀詞＋音訓混讀詞
 ]
 
 def parse_note(path, deck):
@@ -37,7 +38,7 @@ def parse_note(path, deck):
             is_header = cells and cells[0] in ('單字', '句型', '漢字') and not (deck == 'cword' and cells[0] == '漢字')   # cword 裡「漢字」是一個詞
             if not cells or is_header or set(cells[0]) <= {'-'}:
                 continue
-            if deck in ('base', 'media', 'novel', 'cword', 'ckanji'):
+            if deck in ('base', 'media', 'novel', 'cword', 'ckun', 'ckanji'):
                 if len(cells) < 4:
                     continue
                 w, r, mn, src = cells[0], cells[1], cells[2], cells[3]
@@ -80,7 +81,7 @@ def main():
     warnings = []
     for fname, key, label in NOTES:
         path = os.path.join(VAULT, fname)
-        if not os.path.exists(path) and key in ('ckanji', 'cword'):
+        if not os.path.exists(path) and key in ('ckanji', 'cword', 'ckun'):
             print('略過（尚未產生）：%s' % fname)
             continue
         cards = parse_note(path, key)
